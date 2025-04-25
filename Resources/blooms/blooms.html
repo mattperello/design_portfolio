@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bloom's Taxonomy Objective Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      height: 80px;
+      resize: vertical;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    #objectiveOutput {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #3498db;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .field-container {
+      transition: all 0.3s ease;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    
+    .hidden {
+      height: 0;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+    }
+    
+    .hint {
+      font-size: 12px;
+      color: #7f8c8d;
+      font-style: italic;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+    
+    .level-description {
+      margin-top: -5px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f1f8fe;
+      border-radius: 4px;
+      display: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Bloom's Taxonomy Objective Builder</h2>
+  
+  <div class="field-container">
+    <label for="audience">Audience:</label>
+    <input type="text" id="audience" placeholder="e.g., Customer Support Specialists">
+    <p class="hint">Who will be performing this objective?</p>
+  </div>
+
+  <div class="field-container">
+    <label for="verbLevel">Bloom's Level & Action Verb:</label>
+    <select id="verbLevel">
+      <option value="">--Select Level & Verb--</option>
+    </select>
+    <p class="hint">Select the cognitive level and verb for your objective</p>
+    <div id="levelDescription" class="level-description"></div>
+  </div>
+
+  <div class="field-container">
+    <label for="objectiveDetail">Objective Detail:</label>
+    <textarea id="objectiveDetail" placeholder="Enter what the audience will be able to do"></textarea>
+    <p class="hint">Describe what the audience will be able to do</p>
+  </div>
+
+  <div class="field-container" id="conditionContainer">
+    <label for="condition">Condition:</label>
+    <input type="text" id="condition" placeholder="The circumstances under which the performance will occur">
+    <p class="hint" id="conditionHint">Under what conditions will this occur?</p>
+  </div>
+
+  <div class="field-container" id="degreeContainer">
+    <label for="degree">Degree:</label>
+    <input type="text" id="degree" placeholder="How well the objective must be performed">
+    <p class="hint" id="degreeHint">To what standard must it be done?</p>
+  </div>
+
+  <button onclick="generateObjective()">Generate Objective</button>
+
+  <p id="objectiveOutput"></p>
+
+<script>
+const bloomTaxonomy = {
+  "Remembering": {
+    "description": "Retrieval of relevant knowledge from long-term memory. This includes recalling facts, terminology, and specific details.",
+    "List": {
+      "needsCondition": false, 
+      "needsDegree": true,
+      "detailHint": "the specific facts, terms, or concepts that need to be listed",
+      "conditionHint": "",
+      "degreeHint": "the completeness or accuracy required (e.g., 'with 90% accuracy', 'without reference materials')",
+      "examples": ["List all state capitals", "List the components of an effective email"]
+    },
+    "Define": {
+      "needsCondition": false, 
+      "needsDegree": true,
+      "detailHint": "the terms, concepts, or ideas that need to be defined",
+      "conditionHint": "",
+      "degreeHint": "the level of precision or completeness needed (e.g., 'using industry-standard terminology')",
+      "examples": ["Define customer satisfaction metrics", "Define key project management terms"]
+    },
+    "Recall": {
+      "needsCondition": false, 
+      "needsDegree": true,
+      "detailHint": "the information, procedures, or facts that need to be recalled",
+      "conditionHint": "",
+      "degreeHint": "the accuracy or time constraints (e.g., 'within 30 seconds', 'with no errors')",
+      "examples": ["Recall emergency procedures", "Recall product specifications"]
+    },
+    "Identify": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the items, patterns, or elements that need to be identified",
+      "conditionHint": "when presented with examples, scenarios, or real situations",
+      "degreeHint": "the accuracy or speed required (e.g., 'with 100% accuracy', 'within the first minute')",
+      "examples": ["Identify safety hazards", "Identify grammatical errors"]
+    },
+    "Recognize": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the patterns, concepts, or situations that need to be recognized",
+      "conditionHint": "when reviewing materials, observing behaviors, or analyzing scenarios",
+      "degreeHint": "the level of accuracy required (e.g., 'in at least 9 out of 10 cases')",
+      "examples": ["Recognize signs of customer dissatisfaction", "Recognize security threats"]
+    }
+  },
+  "Understanding": {
+    "description": "Constructing meaning from instructional messages, including oral, written, and graphic communication. This involves interpreting, exemplifying, classifying, summarizing, inferring, comparing, and explaining.",
+    "Explain": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the concept, process, or relationship that needs to be explained",
+      "conditionHint": "to different audiences or in specific contexts",
+      "degreeHint": "the level of clarity or detail required (e.g., 'so that a novice can understand', 'using relevant examples')",
+      "examples": ["Explain the customer onboarding process", "Explain how cloud storage works"]
+    },
+    "Summarize": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the information, text, or concepts that need to be summarized",
+      "conditionHint": "after reading reports, attending meetings, or analyzing data",
+      "degreeHint": "the conciseness or completeness required (e.g., 'in 200 words or less', 'including all key points')",
+      "examples": ["Summarize research findings", "Summarize customer feedback trends"]
+    },
+    "Describe": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the process, feature, or situation that needs to be described",
+      "conditionHint": "using appropriate terminology or in specific formats",
+      "degreeHint": "the level of detail required (e.g., 'with sufficient detail for implementation', 'using at least 3 examples')",
+      "examples": ["Describe the product development workflow", "Describe customer personas"]
+    },
+    "Interpret": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the data, text, or information that needs to be interpreted",
+      "conditionHint": "when analyzing reports, reviewing metrics, or examining feedback",
+      "degreeHint": "the depth or accuracy of interpretation (e.g., 'identifying at least three implications', 'with statistical accuracy')",
+      "examples": ["Interpret sales trend data", "Interpret customer survey results"]
+    },
+    "Discuss": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the topic, issue, or concept that needs to be discussed",
+      "conditionHint": "in team meetings, written reports, or presentations",
+      "degreeHint": "the thoroughness or perspective required (e.g., 'considering multiple viewpoints', 'addressing all key aspects')",
+      "examples": ["Discuss ethical implications of data collection", "Discuss market positioning strategies"]
+    }
+  },
+  "Applying": {
+    "description": "Carrying out or using a procedure in a given situation. This includes executing procedures and implementing methods in real-world contexts.",
+    "Apply": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the concept, rule, or method that needs to be applied",
+      "conditionHint": "to specific scenarios, problems, or situations",
+      "degreeHint": "the accuracy or effectiveness required (e.g., 'resulting in correct solutions', 'meeting all requirements')",
+      "examples": ["Apply conflict resolution techniques", "Apply formatting standards"]
+    },
+    "Demonstrate": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the skill, technique, or procedure that needs to be demonstrated",
+      "conditionHint": "in simulations, role-plays, or actual work situations",
+      "degreeHint": "the proficiency level required (e.g., 'without assistance', 'following all safety protocols')",
+      "examples": ["Demonstrate proper equipment operation", "Demonstrate active listening techniques"]
+    },
+    "Use": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the tool, software, or method that needs to be used",
+      "conditionHint": "to accomplish specific tasks or solve particular problems",
+      "degreeHint": "the efficiency or effectiveness required (e.g., 'completing tasks in under 5 minutes', 'with minimal errors')",
+      "examples": ["Use the CRM system", "Use data visualization tools"]
+    },
+    "Perform": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the procedure, process, or task that needs to be performed",
+      "conditionHint": "in specific circumstances or environments",
+      "degreeHint": "the quality standard required (e.g., 'according to established protocols', 'meeting all quality metrics')",
+      "examples": ["Perform a security audit", "Perform customer needs analysis"]
+    },
+    "Solve": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the problem, challenge, or issue that needs to be solved",
+      "conditionHint": "using specific methods, tools, or approaches",
+      "degreeHint": "the effectiveness or elegance of solution required (e.g., 'with the most efficient method', 'within budget constraints')",
+      "examples": ["Solve customer complaints", "Solve technical troubleshooting cases"]
+    }
+  },
+  "Analyzing": {
+    "description": "Breaking material into constituent parts and determining how parts relate to one another and to an overall structure or purpose. This includes differentiating, organizing, and attributing.",
+    "Analyze": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the data, text, system, or situation that needs to be analyzed",
+      "conditionHint": "using specific analytical frameworks or methodologies",
+      "degreeHint": "the depth or thoroughness required (e.g., 'identifying all key factors', 'producing actionable insights')",
+      "examples": ["Analyze market trends", "Analyze system performance bottlenecks"]
+    },
+    "Compare": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the items, approaches, or systems that need to be compared",
+      "conditionHint": "based on specific criteria or frameworks",
+      "degreeHint": "the detail or objectivity required (e.g., 'using quantitative metrics', 'highlighting at least 3 similarities and differences')",
+      "examples": ["Compare vendor proposals", "Compare different implementation strategies"]
+    },
+    "Differentiate": {
+      "needsCondition": true, 
+      "needsDegree": false,
+      "detailHint": "the concepts, categories, or items that need to be differentiated",
+      "conditionHint": "using established criteria or characteristics",
+      "degreeHint": "",
+      "examples": ["Differentiate between feature requests and bugs", "Differentiate effective vs. ineffective communication styles"]
+    },
+    "Examine": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the document, system, or process that needs to be examined",
+      "conditionHint": "for specific characteristics, flaws, or patterns",
+      "degreeHint": "the thoroughness required (e.g., 'documenting all findings', 'against regulatory requirements')",
+      "examples": ["Examine contracts for potential risks", "Examine user flows for usability issues"]
+    },
+    "Categorize": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the items, data, or concepts that need to be categorized",
+      "conditionHint": "according to specific taxonomies or classification systems",
+      "degreeHint": "the accuracy or completeness required (e.g., 'with no misclassifications', 'using all appropriate categories')",
+      "examples": ["Categorize customer feedback", "Categorize project tasks by priority"]
+    }
+  },
+  "Evaluating": {
+    "description": "Making judgments based on criteria and standards. This includes checking and critiquing, leading to reasoned decisions or assessments.",
+    "Evaluate": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the solution, proposal, or performance that needs to be evaluated",
+      "conditionHint": "using established criteria or frameworks",
+      "degreeHint": "the rigor or objectivity required (e.g., 'providing specific examples', 'using a standardized rubric')",
+      "examples": ["Evaluate marketing campaign effectiveness", "Evaluate project outcomes"]
+    },
+    "Critique": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the work, argument, or presentation that needs to be critiqued",
+      "conditionHint": "based on industry standards or best practices",
+      "degreeHint": "the constructiveness or depth required (e.g., 'offering specific improvement suggestions', 'addressing both strengths and weaknesses')",
+      "examples": ["Critique design proposals", "Critique team presentations"]
+    },
+    "Judge": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the quality, validity, or appropriateness that needs to be judged",
+      "conditionHint": "against specific standards or requirements",
+      "degreeHint": "the fairness or thoroughness required (e.g., 'considering all relevant factors', 'using a consistent framework')",
+      "examples": ["Judge the validity of research findings", "Judge the quality of customer service interactions"]
+    },
+    "Assess": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the situation, risk, or opportunity that needs to be assessed",
+      "conditionHint": "using appropriate methods and tools",
+      "degreeHint": "the accuracy or comprehensiveness required (e.g., 'identifying all significant risks', 'with quantitative metrics where possible')",
+      "examples": ["Assess project risks", "Assess training needs"]
+    },
+    "Justify": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the decision, position, or recommendation that needs to be justified",
+      "conditionHint": "using evidence, data, or established principles",
+      "degreeHint": "the persuasiveness required (e.g., 'with sufficient evidence to convince stakeholders', 'addressing potential counterarguments')",
+      "examples": ["Justify budget allocations", "Justify process changes"]
+    }
+  },
+  "Creating": {
+    "description": "Putting elements together to form a coherent or functional whole; reorganizing elements into a new pattern or structure. This includes generating, planning, and producing original work.",
+    "Create": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the product, solution, or content that needs to be created",
+      "conditionHint": "meeting specific requirements or addressing particular needs",
+      "degreeHint": "the originality or quality required (e.g., 'that is both innovative and practical', 'following brand guidelines')",
+      "examples": ["Create marketing materials", "Create a project implementation plan"]
+    },
+    "Design": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the system, process, or solution that needs to be designed",
+      "conditionHint": "to meet specific user needs or business requirements",
+      "degreeHint": "the effectiveness or innovation required (e.g., 'that improves efficiency by at least 20%', 'that meets all accessibility standards')",
+      "examples": ["Design a user onboarding process", "Design a data collection strategy"]
+    },
+    "Develop": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the strategy, plan, or product that needs to be developed",
+      "conditionHint": "for specific audiences or contexts",
+      "degreeHint": "the comprehensiveness or effectiveness required (e.g., 'addressing all key risk factors', 'that can be implemented within current resources')",
+      "examples": ["Develop a training curriculum", "Develop a customer retention strategy"]
+    },
+    "Construct": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the framework, model, or tangible item that needs to be constructed",
+      "conditionHint": "using specific materials, tools, or methodologies",
+      "degreeHint": "the durability or quality required (e.g., 'that withstands testing', 'that meets all specifications')",
+      "examples": ["Construct a business case", "Construct a prototype solution"]
+    },
+    "Formulate": {
+      "needsCondition": true, 
+      "needsDegree": true,
+      "detailHint": "the hypothesis, policy, or approach that needs to be formulated",
+      "conditionHint": "based on analysis of available data or requirements",
+      "degreeHint": "the clarity or testability required (e.g., 'that can be objectively measured', 'with clear implementation steps')",
+      "examples": ["Formulate a change management approach", "Formulate research questions"]
+    }
+  }
+};
+
+// Populate the dropdown with levels & verbs
+const verbLevelSelect = document.getElementById("verbLevel");
+for (const [level, levelInfo] of Object.entries(bloomTaxonomy)) {
+  let optgroup = document.createElement("optgroup");
+  optgroup.label = level;
+  Object.keys(levelInfo).filter(key => key !== "description").forEach(verb => {
+    let option = document.createElement("option");
+    option.value = `${level}|${verb}`;
+    option.textContent = `${level}: ${verb}`;
+    optgroup.appendChild(option);
+  });
+  verbLevelSelect.appendChild(optgroup);
+}
+
+// Get elements
+const conditionContainer = document.getElementById("conditionContainer");
+const degreeContainer = document.getElementById("degreeContainer");
+const levelDescription = document.getElementById("levelDescription");
+const objectiveDetail = document.getElementById("objectiveDetail");
+const condition = document.getElementById("condition");
+const degree = document.getElementById("degree");
+const conditionHint = document.getElementById("conditionHint");
+const degreeHint = document.getElementById("degreeHint");
+
+// Initially hide condition and degree fields
+conditionContainer.classList.add("hidden");
+degreeContainer.classList.add("hidden");
+
+// Update fields based on selected bloom's level and verb
+verbLevelSelect.addEventListener("change", function() {
+  const selectedValue = verbLevelSelect.value;
+  if (!selectedValue) {
+    conditionContainer.classList.add("hidden");
+    degreeContainer.classList.add("hidden");
+    levelDescription.style.display = "none";
+    return;
+  }
+
+  const [level, verb] = selectedValue.split("|");
+  const verbInfo = bloomTaxonomy[level][verb];
+  
+  // Show level description
+  levelDescription.textContent = bloomTaxonomy[level].description;
+  levelDescription.style.display = "block";
+  
+  // Update objective detail placeholder
+  objectiveDetail.placeholder = `Enter what the audience will ${verb.toLowerCase()} (${verbInfo.detailHint})`;
+  
+  // Update and show/hide condition field
+  if (verbInfo.needsCondition) {
+    condition.placeholder = verbInfo.conditionHint || "The circumstances under which the performance will occur";
+    conditionHint.textContent = verbInfo.conditionHint ? verbInfo.conditionHint : "Under what conditions will this occur?";
+    conditionContainer.classList.remove("hidden");
+  } else {
+    conditionContainer.classList.add("hidden");
+  }
+  
+  // Update and show/hide degree field
+  if (verbInfo.needsDegree) {
+    degree.placeholder = verbInfo.degreeHint || "How well the objective must be performed";
+    degreeHint.textContent = verbInfo.degreeHint ? verbInfo.degreeHint : "To what standard must it be done?";
+    degreeContainer.classList.remove("hidden");
+  } else {
+    degreeContainer.classList.add("hidden");
+  }
+  
+  // Add example placeholder to objective detail if there are examples
+  if (verbInfo.examples && verbInfo.examples.length > 0) {
+    const randomExample = verbInfo.examples[Math.floor(Math.random() * verbInfo.examples.length)];
+    objectiveDetail.placeholder += `\nExample: "${randomExample}"`;
+  }
+});
+
+function generateObjective() {
+  const audience = document.getElementById("audience").value.trim() || "Learners";
+  const selectedValue = verbLevelSelect.value;
+  if (!selectedValue) {
+    alert("Please select a Bloom's level and verb.");
+    return;
+  }
+
+  const [level, verb] = selectedValue.split("|");
+  const verbInfo = bloomTaxonomy[level][verb];
+  const detail = document.getElementById("objectiveDetail").value.trim();
+  
+  if (!detail) {
+    alert("Please enter objective detail.");
+    return;
+  }
+  
+  // Only get values from visible fields
+  let condition = "";
+  if (verbInfo.needsCondition) {
+    condition = document.getElementById("condition").value.trim();
+  }
+  
+  let degree = "";
+  if (verbInfo.needsDegree) {
+    degree = document.getElementById("degree").value.trim();
+  }
+
+  // Build the objective
+  let objective = `${audience} will be able to ${verb.toLowerCase()} ${detail}`;
+  
+  // Add condition if provided and needed for this verb
+  if (verbInfo.needsCondition && condition) {
+    objective += ` ${condition}`;
+  }
+  
+  // Add degree if provided and needed for this verb
+  if (verbInfo.needsDegree && degree) {
+    objective += ` ${degree}`;
+  }
+  
+  // Add final period
+  objective += ".";
+
+  // Display the objective
+  document.getElementById("objectiveOutput").textContent = objective;
+}
+</script>
+
+</body>
+</html>
