@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio website showcasing creative work samples">
+    <title>Portfolio Website</title>
+    <style>
+        /* --- Reset & Variables --- */
+        :root {
+            --color-primary: #3498db;
+            --color-dark: #2c3e50;
+            --color-black: #000000;
+            --color-white: #ffffff;
+            --color-light-bg: #f8f9fa;
+            --color-gray-bg: #f0f0f0;
+            --color-text: #333;
+            --color-text-light: #666;
+            --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.3);
+            --border-radius: 10px;
+            --transition-default: 0.2s ease;
+            --max-width: 1100px;
+        }
+
+        /* --- Basic Reset & Body Styling --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; 
+            line-height: 1.6; 
+            background-color: var(--color-light-bg); 
+            color: var(--color-text); 
+        }
+        
+        h1, h2, h3 { 
+            line-height: 1.2; 
+        }
+        
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+        }
+        
+        .container { 
+            max-width: var(--max-width); 
+            margin: 0 auto; 
+            padding: 0 15px; 
+            width: 100%;
+        }
+
+        /* --- Header --- */
+        .site-header { 
+            background-color: var(--color-black); 
+            color: var(--color-white); 
+            padding: 1em 0; 
+        }
+        
+        .site-header h1 { 
+            font-size: 1.8em; 
+            margin: 0; 
+            padding-left: 15px; 
+        }
+
+        /* --- Sections --- */
+        section {
+            padding: 3em 0;
+        }
+        
+        .intro-section, .cards-section { 
+            background-color: var(--color-gray-bg); 
+        }
+        
+        .work-samples-section { 
+            background-color: var(--color-primary); 
+            color: var(--color-white); 
+        }
+
+        /* --- Intro Layout --- */
+        .intro-layout { 
+            display: flex; 
+            align-items: center; 
+            gap: 2.5em; 
+            flex-wrap: wrap; 
+        }
+        
+        .intro-image { 
+            flex: 0 0 30%; 
+            max-width: 250px; 
+            min-width: 150px; 
+        }
+        
+        .intro-image img { 
+            border-radius: 12px; 
+            box-shadow: var(--shadow-sm); 
+            background-color: #cccccc; 
+            border: 1px solid #bbb; 
+        }
+        
+        .intro-text { 
+            flex: 1; 
+            min-width: 250px; 
+        }
+        
+        .intro-text h2 { 
+            color: #555; 
+            margin-bottom: 0.5em; 
+        }
+        
+        .intro-text p { 
+            color: var(--color-text-light); 
+        }
+
+        /* --- Work Samples Section --- */
+        .work-samples-section h2 { 
+            text-align: center; 
+            margin-bottom: 1.5em; 
+            font-size: 1.6em; 
+        }
+        
+        .work-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5em; 
+        }
+        
+        .grid-item { 
+            background-color: var(--color-dark); 
+            padding: 10px; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-md); 
+            cursor: pointer; 
+            transition: transform var(--transition-default), box-shadow var(--transition-default); 
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .grid-item:hover, 
+        .grid-item:focus { 
+            transform: translateY(-5px) scale(1.02); 
+            box-shadow: var(--shadow-lg); 
+        }
+        
+        .grid-thumbnail { 
+            border-radius: 6px; 
+            width: 100%; 
+            aspect-ratio: 16 / 10; 
+            object-fit: cover; 
+            background-color: #cccccc;
+        }
+        
+        .item-title { 
+            color: #ecf0f1; 
+            font-size: 0.9em; 
+            text-align: center; 
+            padding-top: 8px; 
+            margin: 0; 
+        }
+
+        /* --- Filter Controls --- */
+        .filter-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2em;
+            flex-wrap: wrap;
+            gap: 0.5em;
+        }
+
+        .filter-button {
+            background-color: var(--color-dark);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color var(--transition-default);
+            font-size: 0.9em;
+        }
+
+        .filter-button:hover {
+            background-color: #1a5276;
+        }
+
+        .filter-button.active {
+            background-color: var(--color-white);
+            color: var(--color-dark);
+            font-weight: bold;
+        }
+
+        /* --- Cards Section --- */
+        .cards-layout { 
+            display: flex; 
+            gap: 2em; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+        
+        .card { 
+            background-color: var(--color-white); 
+            padding: 1.5em 2em; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-sm); 
+            flex: 1; 
+            min-width: 280px; 
+            max-width: 45%; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .card h3 { 
+            margin-bottom: 0.5em; 
+        }
+        
+        .card p { 
+            color: var(--color-text-light); 
+            flex-grow: 1; 
+            margin-bottom: 1em; 
+        }
+        
+        .download-button { 
+            display: inline-block; 
+            background-color: #1a73e8; 
+            color: var(--color-white); 
+            padding: 10px 25px; 
+            border: none; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: background-color var(--transition-default); 
+            margin-top: auto; 
+            align-self: center; 
+        }
+        
+        .download-button:hover,
+        .download-button:focus { 
+            background-color: #1558b0; 
+        }
+
+        /* --- Footer --- */
+        .site-footer { 
+            background-color: var(--color-black); 
+            color: #cccccc; 
+            padding: 1em 0; 
+            text-align: center; 
+            font-size: 0.9em; 
+            margin-top: 2em; 
+        }
+
+        /* --- Modal Styles --- */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.75); 
+            z-index: 999;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .modal-content { 
+            background-color: #fefefe; 
+            margin: auto; 
+            padding: 20px; 
+            border: 1px solid #888; 
+            width: 85%; 
+            max-width: 800px; 
+            position: relative; 
+            box-shadow: var(--shadow-lg); 
+            border-radius: var(--border-radius); 
+            padding-top: 45px;
+        }
+        
+        .close-button { 
+            color: #aaa; 
+            position: absolute; 
+            top: 10px; 
+            right: 20px; 
+            font-size: 35px; 
+            font-weight: bold; 
+            line-height: 1; 
+            cursor: pointer; 
+            border: none;
+            background: transparent;
+            padding: 0;
+        }
+        
+        .close-button:hover, 
+        .close-button:focus { 
+            color: black; 
+            text-decoration: none; 
+        }
+        
+        #modalContentArea { 
+            width: 100%; 
+            min-height: 300px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+        }
+        
+        #modalContentArea img, 
+        #modalContentArea video { 
+            max-width: 100%; 
+            max-height: 75vh; 
+            height: auto; 
+            display: block; 
+        }
+        
+        #modalContentArea iframe { 
+            width: 100%; 
+            height: 70vh; 
+            min-height: 450px; 
+            border: none; 
+            display: block; 
+        }
+        
+        .modal-active { 
+            display: flex !important; 
+        }
+        
+        .overlay-active { 
+            display: block !important; 
+        }
+
+        /* --- Description in Modal --- */
+        .modal-description {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* --- Responsiveness --- */
+        @media (max-width: 768px) {
+            .intro-layout { 
+                flex-direction: column; 
+                text-align: center; 
+            }
+            
+            .intro-image { 
+                max-width: 200px; 
+                margin-bottom: 1em; 
+                flex-basis: auto; 
+            }
+            
+            .intro-text { 
+                text-align: left; 
+            }
+            
+            .card { 
+                max-width: 80%; 
+            }
+            
+            .modal-content { 
+                width: 90%; 
+                max-width: 600px; 
+            }
+            
+            #modalContentArea iframe { 
+                height: 60vh; 
+                min-height: 350px; 
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .site-header h1 { 
+                font-size: 1.5em; 
+                text-align: center; 
+                padding-left: 0; 
+            }
+            
+            .card { 
+                max-width: 95%; 
+            }
+            
+            .modal-content { 
+                width: 95%; 
+                padding: 15px; 
+                padding-top: 45px; 
+            }
+            
+            #modalContentArea iframe { 
+                height: 55vh; 
+                min-height: 300px; 
+            }
+            
+            .download-button { 
+                padding: 12px 30px; 
+                width: 100%;
+            }
+        }
+
+        /* --- Focus Styles for Accessibility --- */
+        a:focus, button:focus, .grid-item:focus-visible {
+            outline: 3px solid #1a73e8;
+            outline-offset: 2px;
+        }
+
+        /* --- Loading State --- */
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38" stroke="%23333"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle stroke-opacity=".5" cx="18" cy="18" r="18"/><path d="M36 18c0-9.94-8.06-18-18-18"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/></path></g></g></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: var(--border-radius);
+            z-index: 5;
+        }
+
+        /* --- Prefers reduced motion --- */
+        @media (prefers-reduced-motion: reduce) {
+            .grid-item, .download-button {
+                transition: none;
+            }
+        }
+
+        /* Screen-reader only class */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+             <h1>My Portfolio</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <div class="container intro-layout">
+                <div class="intro-image">
+                    <img src="resources/profile.jpeg" alt="Profile photograph">
+                </div>
+                <div class="intro-text">
+                    <h2>About Me</h2>
+                    <p>
+                        Learning Designer with over 12 years of experience in creating engaging, user-centered training solutions. Skilled at translating complex technical concepts into accessible learning materials that drive adoption and improve performance. I'm known for my attention to detail, cross-functional collaboration, and developing content that meaningfully impacts key business metrics.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="work-samples-section">
+            <div class="container">
+                <h2>Work Samples</h2>
+                <div class="filter-controls" id="filterControls">
+                    <!-- Filter buttons will be added here dynamically -->
+                </div>
+                <div class="work-grid" id="portfolioGrid"></div>
+            </div>
+        </section>
+
+        <section class="cards-section">
+             <div class="container cards-layout">
+                <div class="card">
+                    <h3>Download Resume</h3>
+                    <p>Get a copy of my professional resume with detailed information about my skills, experience, and qualifications.</p>
+                    <a href="resources/resume.pdf" class="download-button">Download</a>
+                </div>
+</div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+             <p>&copy; 2025 My Portfolio Website</p>
+        </div>
+    </footer>
+
+    <div id="modalOverlay" class="modal-overlay" role="presentation"></div>
+    <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="close-button" id="closeModalButton" aria-label="Close">&times;</button>
+            <h2 id="modalTitle" class="sr-only">Portfolio Item Details</h2>
+            <div id="modalContentArea"></div>
+            <div id="modalDescription" class="modal-description"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===============================================================
+        // PORTFOLIO CONFIGURATION - CUSTOMIZE THIS SECTION
+        // ===============================================================
+        
+        // Define content categories
+        const portfolioCategories = [
+            { id: 'all', label: 'All Items' },
+            { id: 'image', label: 'Images' },
+            { id: 'video', label: 'Videos' },
+            { id: 'document', label: 'Documents' },
+            { id: 'interactive', label: 'Interactive' }
+        ];
+        
+        // Define portfolio items
+        const portfolioItems = [
+			{
+				id: 'item10',
+                thumbnail: 'resources/projects/shop_sim/shopping_sim.png',
+                alt: 'Shopping Simulator - Interactive eLearning',
+                modalSrc: 'https://urldefense.com/v3/__https://community-portal-prod-previewdata.s3.us-west-2.amazonaws.com/files/2021/09/a55544faa120be911fad/index.html__;!!O8JL6HM!j_zffqkEnxwLjiyh9DGsF2c8FiKeWjxFTZh-xrAL7V-zeJFq9Lc0OaXwvqrQhHd8ezTBeIs6JPG4g5Gds_l2Ww$',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'Shopping Simulator',
+                description: ''
+			
+			},
+			{
+                id: 'item3',
+                thumbnail: 'resources/projects/mbla/MBLA_SS.png',
+                alt: 'MBUSA Leadership Academy - Interactive eLearning',
+                modalSrc: 'https://cpcontents.adobe.com/protected/account/132981/resources/16666198/16666198/content/index.html?capi_player=0',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'MBUSA Leadership Academy - Interactive eLearning (Adobe Captivate)',
+                description: ''
+            },
+            {
+                id: 'item4',
+                thumbnail: 'resources/projects/aaa/aaa_ss.png',
+                alt: 'Navigation in Modern Aviation - Interactive eLearning',
+                modalSrc: 'resources/projects/aaa/AAA/index.html',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'Navigation in Modern Aviation - Interactive eLearning',
+                description: ''
+            },
+            {
+                id: 'item5',
+                thumbnail: 'resources/projects/calabrio/absence_requests_ss.png',
+                alt: 'Submitting Absence Requests - Job Aid',
+                modalSrc: 'resources/projects/calabrio/submitting_absence_requests.pdf',
+                type: 'iframe',
+                categories: ['document'],
+                title: 'Submitting Absence Requests - Job Aid',
+                description: ''
+            },
+            {
+                id: 'item6',
+                thumbnail: 'resources/projects/engage/engage_ss.png',
+                alt: 'Salesforce Engage - Infographic',
+                modalSrc: 'resources/projects/engage/engage.png',
+                type: 'image',
+                categories: ['image'],
+                title: 'Salesforce Engage - Infographic',
+                description: ''
+			
+			},
+			{
+				id: 'item1',
+                thumbnail: 'resources/projects/blooms/blooms.png',
+                alt: 'Blooms Learning Objective Builder - Web Based Tool',
+                modalSrc: 'resources/projects/blooms/blooms.html',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'Learning Objective Builder - Tool',
+                description: ''
+			},
+			{
+				id: 'item9',
+                thumbnail: 'resources/projects/click/forms_ss.png',
+                alt: 'Intro to Forms - Video',
+                modalSrc: 'resources/projects/click/forms.mp4',
+                type: 'video',
+                categories: ['video'],
+                title: 'Intro to Forms',
+                description: ''
+				
+			},
+			{
+				id: 'item11',
+                thumbnail: 'resources/projects/auto/adding_users_ss.png',
+                alt: 'Adding Users - Video',
+                modalSrc: 'resources/projects/auto/adding_users.mp4',
+                type: 'iframe',
+                categories: ['video'],
+                title: 'Adding Users',
+                description: ''
+				
+			},
+			{
+				id: 'item12',
+                thumbnail: 'resources/projects/snap/snap_ss.png',
+                alt: 'SNAP & EBT - Interactive eLearning',
+                modalSrc: 'https://community-portal-prod-previewdata.s3.us-west-2.amazonaws.com/files/2021/05/b9ca8b078606c770ba43/index.html',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'SNAP & EBT',
+                description: ''
+				
+				
+			},
+			{
+				id: 'item13',
+                thumbnail: 'resources/projects/omnipro/omnipro_ss.png',
+                alt: 'OmniPro SkyMiles Updates - Video',
+                modalSrc: 'resources/projects/omnipro/omnipro_updates.mp4',
+                type: 'iframe',
+                categories: ['video'],
+                title: 'OmniPro SkyMiles Updates',
+                description: ''
+			},
+			{
+				id: 'item13',
+                thumbnail: 'resources/projects/cobrand/cobrand.png',
+                alt: 'Cobrand Card Updates - Video',
+                modalSrc: 'resources/projects/cobrand/cobrand.mp4',
+                type: 'iframe',
+                categories: ['video'],
+                title: 'OmniPro SkyMiles Updates',
+                description: ''
+			},
+			{
+                id: 'item2',
+                thumbnail: 'resources/projects/elevating/EET_SS.png',
+                alt: 'Elevating Excellence together - Video',
+                modalSrc: 'resources/projects/elevating/EET.mp4',
+                type: 'video',
+                categories: ['video'],
+                title: 'Elevating Excellence together - Video',
+                description: ''
+            },
+			{
+				id: 'item1',
+                thumbnail: 'resources/projects/refunds_ts/refunds_troubleshooting_ss.png',
+                alt: 'Refunds Troubleshooting - Video',
+                modalSrc: 'resources/projects/refunds_ts/refunds_troubleshooting.mp4',
+                type: 'video',
+                categories: ['video'],
+                title: 'Refunds Troubleshooting - Video',
+                description: ''
+			},
+			{
+				id: 'item1',
+                thumbnail: 'resources/projects/banning/banning.png',
+                alt: 'Banning Shoppers from Customers - Interactive eLearning',
+                modalSrc: 'resources/projects/banning/index.html',
+                type: 'iframe',
+                categories: ['interactive'],
+                title: 'Banning Shoppers from Customers - Interactive eLearning',
+                description: ''
+			},
+        ];
+        
+        // ===============================================================
+        // WEBSITE FUNCTIONALITY - DON'T MODIFY BELOW THIS LINE
+        // ===============================================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const portfolioGrid = document.getElementById('portfolioGrid');
+            const filterControls = document.getElementById('filterControls');
+            const modal = document.getElementById('imageModal');
+            const overlay = document.getElementById('modalOverlay');
+            const modalContentArea = document.getElementById('modalContentArea');
+            const modalDescription = document.getElementById('modalDescription');
+            const closeButton = document.getElementById('closeModalButton');
+            const modalTitle = document.getElementById('modalTitle');
+
+            // Track the last clicked grid item and current filter
+            let lastClickedItem = null;
+            let currentFilter = 'all';
+
+            // --- Create filter buttons ---
+            function createFilterButtons() {
+                if (!filterControls) return;
+                
+                portfolioCategories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.className = 'filter-button';
+                    button.textContent = category.label;
+                    button.dataset.filter = category.id;
+                    button.setAttribute('aria-pressed', 'false');
+                    
+                    // Set first button as active
+                    if (category.id === 'all') {
+                        button.classList.add('active');
+                        button.setAttribute('aria-pressed', 'true');
+                    }
+                    
+                    button.addEventListener('click', () => {
+                        // Remove active class from all buttons
+                        document.querySelectorAll('.filter-button').forEach(btn => {
+                            btn.classList.remove('active');
+                            btn.setAttribute('aria-pressed', 'false');
+                        });
+                        
+                        // Add active class to clicked button
+                        button.classList.add('active');
+                        button.setAttribute('aria-pressed', 'true');
+                        
+                        // Filter the grid
+                        currentFilter = category.id;
+                        filterGrid();
+                    });
+                    
+                    filterControls.appendChild(button);
+                });
+            }
+
+            // --- Filter the grid ---
+            function filterGrid() {
+                const items = document.querySelectorAll('.grid-item');
+                
+                items.forEach(item => {
+                    const itemCategories = item.dataset.categories.split(',');
+                    
+                    if (currentFilter === 'all' || itemCategories.includes(currentFilter)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+
+            // --- Function to open the modal ---
+            function openModal(item) {
+                const { modalSrc, type, title, description } = item;
+                
+                modalContentArea.innerHTML = ''; // Clear previous content
+                modalDescription.innerHTML = ''; // Clear previous description
+                
+                // Set title for screen readers
+                if (title) {
+                    modalTitle.textContent = title;
+                }
+                
+                // Add description if available
+                if (description) {
+                    modalDescription.innerHTML = `<h3>${title}</h3><p>${description}</p>`;
+                }
+                
+                // Show loading state
+                modalContentArea.classList.add('loading');
+                
+                let element;
+
+                switch (type) {
+                    case 'image':
+                        element = document.createElement('img');
+                        element.src = modalSrc;
+                        element.alt = title || "Portfolio Content";
+                        element.onload = () => modalContentArea.classList.remove('loading');
+                        element.onerror = () => {
+                            modalContentArea.classList.remove('loading');
+                            modalContentArea.innerHTML = '<p>Error loading image. Please try again later.</p>';
+                        };
+                        break;
+                    case 'video':
+                        element = document.createElement('video');
+                        element.src = modalSrc;
+                        element.controls = true;
+                        element.autoplay = false;
+                        element.setAttribute('playsinline', '');
+                        element.onloadeddata = () => modalContentArea.classList.remove('loading');
+                        element.onerror = () => {
+                            modalContentArea.classList.remove('loading');
+                            modalContentArea.innerHTML = '<p>Error loading video. Please try again later.</p>';
+                        };
+                        break;
+                    case 'iframe':
+                        element = document.createElement('iframe');
+                        element.src = modalSrc;
+                        element.setAttribute('frameborder', '0');
+                        element.setAttribute('allow', 'autoplay; fullscreen');
+                        element.setAttribute('allowfullscreen', '');
+                        element.setAttribute('title', title || 'Embedded content');
+                        element.onload = () => modalContentArea.classList.remove('loading');
+                        element.onerror = () => {
+                            modalContentArea.classList.remove('loading');
+                            modalContentArea.innerHTML = '<p>Error loading content. Please try again later.</p>';
+                        };
+                        break;
+                    default:
+                        console.warn("Unknown modal content type:", type);
+                        element = document.createElement('p');
+                        element.textContent = 'Error: Cannot display content.';
+                        modalContentArea.classList.remove('loading');
+                }
+
+                if (element) {
+                    modalContentArea.appendChild(element);
+                }
+
+                modal.classList.add('modal-active');
+                overlay.classList.add('overlay-active');
+                
+                // Set focus to close button for keyboard navigation
+                closeButton.focus();
+                
+                // Prevent scrolling
+                document.body.style.overflow = 'hidden';
+            }
+
+            // --- Function to close the modal ---
+            function closeModal() {
+                modal.classList.remove('modal-active');
+                overlay.classList.remove('overlay-active');
+                modalContentArea.innerHTML = '';
+                modalDescription.innerHTML = '';
+                document.body.style.overflow = ''; // Restore scrolling
+                
+                // Return focus to the last clicked item
+                if (lastClickedItem) {
+                    lastClickedItem.focus();
+                }
+            }
+
+            // --- Generate Grid Items from Data ---
+            function generatePortfolioGrid() {
+                if (!portfolioGrid) return;
+
+                portfolioItems.forEach((item) => {
+                    // Create grid item container
+                    const gridItemDiv = document.createElement('div');
+                    gridItemDiv.className = 'grid-item';
+                    gridItemDiv.dataset.categories = item.categories.join(',');
+                    gridItemDiv.dataset.itemId = item.id;
+                    gridItemDiv.tabIndex = 0; // Make focusable for keyboard users
+                    gridItemDiv.setAttribute('role', 'button');
+                    gridItemDiv.setAttribute('aria-label', `View ${item.alt}`);
+
+                    // Create thumbnail image with lazy loading
+                    const thumbnailImg = document.createElement('img');
+                    thumbnailImg.src = item.thumbnail;
+                    thumbnailImg.alt = item.alt;
+                    thumbnailImg.className = 'grid-thumbnail';
+                    thumbnailImg.loading = 'lazy';
+
+                    // Add title below thumbnail
+                    const titleElement = document.createElement('p');
+                    titleElement.className = 'item-title';
+                    titleElement.textContent = item.alt;
+                    
+                    // Append elements to grid item
+                    gridItemDiv.appendChild(thumbnailImg);
+                    gridItemDiv.appendChild(titleElement);
+
+                    // Add click listener to open modal
+                    gridItemDiv.addEventListener('click', () => {
+                        lastClickedItem = gridItemDiv;
+                        openModal(item);
+                    });
+                    
+                    // Allow keyboard activation
+                    gridItemDiv.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            lastClickedItem = gridItemDiv;
+                            openModal(item);
+                        }
+                    });
+
+                    // Append to grid
+                    portfolioGrid.appendChild(gridItemDiv);
+                });
+            }
+
+            // --- Setup Event Listeners ---
+            if (closeButton) {
+                closeButton.addEventListener('click', closeModal);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeModal);
+            }
+            
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.classList.contains('modal-active')) {
+                    closeModal();
+                }
+            });
+
+            // --- Trap focus in modal when open ---
+            modal.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab' && modal.classList.contains('modal-active')) {
+                    // Simple focus trap just for the close button
+                    e.preventDefault();
+                    closeButton.focus();
+                }
+            });
+
+            // --- Initialize ---
+            createFilterButtons();
+            generatePortfolioGrid();
+
+            // --- Performance Optimization: Lazy load images that are not visible ---
+            if ('IntersectionObserver' in window) {
+                const lazyImages = document.querySelectorAll('img.grid-thumbnail');
+                
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src || img.src;
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+                
+                lazyImages.forEach(img => {
+                    if (!img.dataset.src) {
+                        img.dataset.src = img.src;
+                    }
+                    imageObserver.observe(img);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
