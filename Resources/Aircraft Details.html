@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Aircraft Information Tool</title>
+    <style>
+        :root {
+            --primary-color: #003366; /* Delta Blue */
+            --secondary-color: #E31837; /* Delta Red */
+            --accent-color: #005bbb;
+            --light-gray: #f4f4f4;
+            --medium-gray: #ccc;
+            --dark-gray: #555;
+            --text-color: #333;
+            --bg-color: #fff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden; /* Prevent overall page scroll issues */
+        }
+
+        .sidebar {
+            width: 300px;
+            min-width: 250px;
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-right: 1px solid var(--medium-gray);
+            overflow-y: auto;
+            height: calc(100vh - 40px); /* Adjust based on padding/margin */
+        }
+
+        .details-view {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: #fdfdfd;
+            overflow-y: auto;
+            height: calc(100vh - 60px); /* Adjust based on padding/margin */
+        }
+
+        .details-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        .details-content {
+            display: none; /* Hidden initially */
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.6em;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.4em;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+         h2:first-of-type {
+             margin-top: 0;
+         }
+
+        h3 {
+            font-size: 1.2em;
+            color: var(--dark-gray);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        #search-input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .manufacturer-group {
+            margin-bottom: 15px;
+        }
+
+        .manufacturer-group h4 {
+            margin: 10px 0 5px 0;
+            font-size: 1em;
+            color: var(--dark-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 3px;
+        }
+
+        #aircraft-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #aircraft-list li {
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        #aircraft-list li:hover {
+            background-color: #eef5ff;
+        }
+         #aircraft-list li.active {
+             background-color: var(--accent-color);
+             color: white;
+             font-weight: bold;
+         }
+        #aircraft-list li.active .code {
+             color: #eee;
+         }
+
+        .code {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+
+        .hidden { display: none; }
+
+        /* Details View Specific Styling */
+        .detail-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 5px;
+             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .detail-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+         .detail-section li {
+             padding: 5px 0;
+             border-bottom: 1px dotted #eee;
+         }
+         .detail-section li:last-child {
+             border-bottom: none;
+         }
+        .detail-section strong {
+            display: inline-block;
+            min-width: 120px; /* Align labels */
+            color: var(--dark-gray);
+        }
+
+        .cabins-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .cabin-card {
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            flex: 1;
+            min-width: 150px;
+        }
+        .cabin-card h4 {
+            margin: 0 0 10px 0;
+            padding-bottom: 5px;
+            font-size: 1.1em;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        .cabin-card p { margin: 5px 0;}
+
+         .links-list a {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            font-size: 0.95em;
+        }
+        .links-list a:hover {
+            background-color: #c8102e; /* Darker Red */
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8em;
+            color: var(--dark-gray);
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--medium-gray);
+        }
+
+         /* Simple Responsive */
+         @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto; /* Let it grow */
+                max-height: 40vh; /* Limit height */
+                border-right: none;
+                border-bottom: 1px solid var(--medium-gray);
+                 box-sizing: border-box;
+            }
+             .details-view {
+                height: auto; /* Let it grow */
+                 padding: 20px;
+                 box-sizing: border-box;
+             }
+         }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <h1>Aircraft List</h1>
+            <input type="text" id="search-input" placeholder="Search aircraft...">
+            <div id="aircraft-list-container">
+                <!-- Aircraft list will be built here -->
+            </div>
+        </aside>
+
+        <main class="details-view">
+            <div class="details-placeholder" id="details-placeholder">
+                <p>Select an aircraft from the list to see details.</p>
+            </div>
+
+            <div class="details-content" id="details-content">
+                <h2 id="details-title">Aircraft Details</h2>
+
+                <!-- Overview Section -->
+                <div class="detail-section" id="overview-section">
+                    <h3>Overview</h3>
+                    <ul>
+                        <li><strong>Manufacturer:</strong> <span id="detail-manufacturer">N/A</span></li>
+                        <li><strong>Model:</strong> <span id="detail-model">N/A</span></li>
+                        <li><strong>Code:</strong> <span id="detail-code">N/A</span></li>
+                    </ul>
+                </div>
+
+                <!-- Passenger Experience Section -->
+                <div class="detail-section" id="experience-section">
+                    <h3>Passenger Experience</h3>
+                    <h4>Cabins</h4>
+                    <div class="cabins-container" id="cabins-container">
+                        <!-- Cabin cards will be added here -->
+                    </div>
+
+                    <h4>Amenities</h4>
+                    <ul id="amenities-list">
+                        <li><strong>Wi-Fi:</strong> <span id="detail-wifi">N/A</span></li>
+                        <li><strong>In-Seat Power:</strong> <span id="detail-power">N/A</span></li>
+                        <li><strong>Entertainment:</strong> <span id="detail-entertainment">N/A</span></li>
+                    </ul>
+                </div>
+
+                 <!-- Specifications Section -->
+                 <div class="detail-section" id="specs-section">
+                    <h3>Specifications</h3>
+                    <ul id="specs-list">
+                        <li><strong>Cruising Speed:</strong> <span id="detail-speed">N/A</span></li>
+                        <li><strong>Range:</strong> <span id="detail-range">N/A</span></li>
+                        <li><strong>Engines:</strong> <span id="detail-engines">N/A</span></li>
+                        <!-- Add more specs as needed -->
+                    </ul>
+                </div>
+
+                <!-- Links Section -->
+                <div class="detail-section" id="links-section">
+                    <h3>Quick Links</h3>
+                    <div class="links-list" id="links-list">
+                        <a href="#" id="link-delta" target="_blank" rel="noopener noreferrer">View on Delta.com</a>
+                        <a href="#" id="link-seatmap" target="_blank" rel="noopener noreferrer">View Seat Map</a>
+                    </div>
+                </div>
+                 <p style="font-size: 0.8em; color: var(--dark-gray); text-align: center; margin-top: 20px;">
+                    *Data is illustrative and may require verification on Delta.com. Especially for aircraft other than A220-100 and 737-900ER.*
+                 </p>
+            </div>
+        </main>
+    </div>
+
+    <footer>Aircraft Information Tool - Data requires verification</footer>
+
+    <script>
+        // --- DATA ---
+        // IMPORTANT: Fill this with ACCURATE data. Below are examples and placeholders.
+        const aircraftData = [
+            // --- Airbus ---
+            {
+                manufacturer: "Airbus", model: "A220-100", code: "221", slug: "a220-100",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a220-100",
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (all seats)", entertainment: "Delta Studio (Seatback)",
+                    cabins: [
+                        { name: "First Class", seats: 12 },
+                        { name: "Delta Comfort+", seats: 15 },
+                        { name: "Main Cabin", seats: 82 }
+                    ]
+                },
+                specs: { speed: "Approx 528 mph", range: "Up to 3,400 nm", engines: "Pratt & Whitney PW1500G" }
+            },
+            {
+                manufacturer: "Airbus", model: "A220-300", code: "223", slug: "a220-300",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a220-300", // Guess
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (most seats)", entertainment: "Delta Studio (Seatback)",
+                    cabins: [ // Placeholder counts
+                        { name: "First Class", seats: 12 },
+                        { name: "Delta Comfort+", seats: 30 },
+                        { name: "Main Cabin", seats: 88 }
+                    ]
+                },
+                specs: { speed: "Approx 528 mph", range: "Up to 3,350 nm", engines: "Pratt & Whitney PW1500G" } // Placeholder specs
+            },
+             {
+                manufacturer: "Airbus", model: "A319-100", code: "319", slug: "a319-100",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a319-100", // Guess
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (most seats)", entertainment: "Delta Studio (Seatback/Personal Device)", // Varies
+                    cabins: [ // Placeholder counts
+                        { name: "First Class", seats: 12 },
+                        { name: "Delta Comfort+", seats: 18 },
+                        { name: "Main Cabin", seats: 102 }
+                    ]
+                },
+                specs: { speed: "Approx 518 mph", range: "Up to 3,750 nm", engines: "CFM56 / V2500" } // Placeholder specs
+            },
+             {
+                manufacturer: "Airbus", model: "A320-200", code: "320", slug: "a320-200",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a320-200", // Guess
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (most seats)", entertainment: "Delta Studio (Seatback/Personal Device)", // Varies
+                    cabins: [ // Placeholder counts
+                        { name: "First Class", seats: 16 },
+                        { name: "Delta Comfort+", seats: 18 },
+                        { name: "Main Cabin", seats: 123 }
+                    ]
+                },
+                specs: { speed: "Approx 518 mph", range: "Up to 3,300 nm", engines: "CFM56 / V2500" } // Placeholder specs
+            },
+            {
+                manufacturer: "Airbus", model: "A321-200", code: "321", slug: "a321-200",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a321-200", // Guess
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (most seats)", entertainment: "Delta Studio (Seatback)",
+                    cabins: [ // Placeholder counts
+                        { name: "First Class", seats: 20 },
+                        { name: "Delta Comfort+", seats: 29 },
+                        { name: "Main Cabin", seats: 143 }
+                    ]
+                },
+                specs: { speed: "Approx 518 mph", range: "Up to 3,200 nm", engines: "CFM56 / V2500" } // Placeholder specs
+            },
+             {
+                manufacturer: "Airbus", model: "A321neo", code: "3NE", slug: "a321neo",
+                deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a321neo", // Guess
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (all seats)", entertainment: "Delta Studio (Seatback)",
+                    cabins: [ // Placeholder counts
+                        { name: "First Class", seats: 20 },
+                        { name: "Delta Comfort+", seats: 42 },
+                        { name: "Main Cabin", seats: 132 }
+                    ]
+                },
+                specs: { speed: "Approx 518 mph", range: "Up to 4,000 nm", engines: "Pratt & Whitney PW1100G" } // Placeholder specs
+            },
+            // Add other Airbus models here with placeholder/real data...
+             { manufacturer: "Airbus", model: "A330-200", code: "332", slug: "a330-200", deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a330-200", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Airbus", model: "A330-300", code: "333", slug: "a330-300", deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a330-300", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Airbus", model: "A330-900neo", code: "339", slug: "a330-900neo", deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a330-900neo", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Airbus", model: "A350-900", code: null, slug: "a350-900", deltaLink: "https://www.delta.com/us/en/aircraft/airbus/a350-900", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+
+            // --- Boeing ---
+             {
+                manufacturer: "Boeing", model: "717-200", code: "717", slug: "boeing-717", // Special slug
+                deltaLink: "https://www.delta.com/us/en/aircraft/boeing/boeing-717",
+                passengerExperience: { // Placeholders
+                    wifi: "Yes (Purchase)", power: "Limited (Check Seat Map)", entertainment: "Personal Device",
+                    cabins: [
+                        { name: "First Class", seats: 12 },
+                        { name: "Delta Comfort+", seats: 20 },
+                        { name: "Main Cabin", seats: 78 }
+                    ]
+                },
+                specs: { speed: "Approx 504 mph", range: "Up to 1,500 nm", engines: "Rolls-Royce BR715" } // Placeholders
+            },
+            {
+                manufacturer: "Boeing", model: "737-800", code: "738", slug: "737-800",
+                deltaLink: "https://www.delta.com/us/en/aircraft/boeing/737-800",
+                passengerExperience: { // Placeholders - Check Delta for variations
+                    wifi: "Yes (Purchase)", power: "AC & USB (Most Seats)", entertainment: "Delta Studio (Seatback/Personal Device)",
+                    cabins: [
+                        { name: "First Class", seats: 16 },
+                        { name: "Delta Comfort+", seats: 36 },
+                        { name: "Main Cabin", seats: 108 }
+                    ]
+                },
+                specs: { speed: "Approx 530 mph", range: "Up to 3,100 nm", engines: "CFM56-7B" } // Placeholders
+            },
+            {
+                manufacturer: "Boeing", model: "737-900ER", code: null, slug: "737-900er",
+                deltaLink: "https://www.delta.com/us/en/aircraft/boeing/737-900er",
+                passengerExperience: {
+                    wifi: "Yes (Purchase)", power: "AC & USB (Most Seats)", entertainment: "Delta Studio (Seatback)",
+                    cabins: [
+                        { name: "First Class", seats: 20 },
+                        { name: "Delta Comfort+", seats: 21 },
+                        { name: "Main Cabin", seats: 139 }
+                    ]
+                },
+                specs: { speed: "Approx 530 mph", range: "Up to 3,200 nm", engines: "CFM56-7B" }
+            },
+            // Add other Boeing models here...
+             { manufacturer: "Boeing", model: "757-200", code: null, slug: "757-200", deltaLink: "https://www.delta.com/us/en/aircraft/boeing/757-200", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Boeing", model: "757-300", code: "75Y", slug: "757-300", deltaLink: "https://www.delta.com/us/en/aircraft/boeing/757-300", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Boeing", model: "767-300ER", code: null, slug: "767-300er", deltaLink: "https://www.delta.com/us/en/aircraft/boeing/767-300er", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+             { manufacturer: "Boeing", model: "767-400ER", code: "764", slug: "767-400er", deltaLink: "https://www.delta.com/us/en/aircraft/boeing/767-400er", passengerExperience: { wifi: "Yes", power: "Yes", entertainment: "Delta Studio", cabins:[] }, specs: {} },
+
+            // --- Bombardier ---
+             { manufacturer: "Bombardier", model: "CRJ-550", code: null, slug: "crj-550", deltaLink: "https://www.delta.com/us/en/aircraft/bombardier/crj-550", passengerExperience: { wifi: "Yes", power: "Limited", entertainment: "Personal Device", cabins:[] }, specs: {} }, // Guessed links/details
+             { manufacturer: "Bombardier", model: "CRJ-700", code: null, slug: "crj-700", deltaLink: "https://www.delta.com/us/en/aircraft/bombardier/crj-700", passengerExperience: { wifi: "Yes", power: "Limited", entertainment: "Personal Device", cabins:[] }, specs: {} },
+             { manufacturer: "Bombardier", model: "CRJ-900", code: null, slug: "crj-900", deltaLink: "https://www.delta.com/us/en/aircraft/bombardier/crj-900", passengerExperience: { wifi: "Yes", power: "Limited", entertainment: "Personal Device", cabins:[] }, specs: {} },
+
+            // --- Embraer ---
+             { manufacturer: "Embraer", model: "E-170", code: null, slug: "e-170", deltaLink: "https://www.delta.com/us/en/aircraft/embraer/e-170", passengerExperience: { wifi: "Yes", power: "Limited", entertainment: "Personal Device", cabins:[] }, specs: {} }, // Guessed links/details
+             { manufacturer: "Embraer", model: "E-175", code: null, slug: "e-175", deltaLink: "https://www.delta.com/us/en/aircraft/embraer/e-175", passengerExperience: { wifi: "Yes", power: "Limited", entertainment: "Personal Device", cabins:[] }, specs: {} },
+        ];
+
+        // --- DOM Elements ---
+        const listContainer = document.getElementById('aircraft-list-container');
+        const searchInput = document.getElementById('search-input');
+        const detailsPlaceholder = document.getElementById('details-placeholder');
+        const detailsContent = document.getElementById('details-content');
+        const detailsTitle = document.getElementById('details-title');
+
+        // Detail Fields (get references once)
+        const detailManufacturer = document.getElementById('detail-manufacturer');
+        const detailModel = document.getElementById('detail-model');
+        const detailCode = document.getElementById('detail-code');
+        const cabinsContainer = document.getElementById('cabins-container');
+        const detailWifi = document.getElementById('detail-wifi');
+        const detailPower = document.getElementById('detail-power');
+        const detailEntertainment = document.getElementById('detail-entertainment');
+        const detailSpeed = document.getElementById('detail-speed');
+        const detailRange = document.getElementById('detail-range');
+        const detailEngines = document.getElementById('detail-engines');
+        const linkDelta = document.getElementById('link-delta');
+        const linkSeatmap = document.getElementById('link-seatmap');
+
+        let currentActiveListItem = null;
+
+        // --- Functions ---
+
+        // Generate the initial sidebar list
+        function generateSidebarList() {
+            listContainer.innerHTML = ''; // Clear existing
+            const manufacturers = [...new Set(aircraftData.map(ac => ac.manufacturer))].sort();
+
+            manufacturers.forEach(manufacturer => {
+                const groupDiv = document.createElement('div');
+                groupDiv.classList.add('manufacturer-group');
+                groupDiv.dataset.manufacturer = manufacturer;
+
+                const header = document.createElement('h4');
+                header.textContent = manufacturer;
+                groupDiv.appendChild(header);
+
+                const ul = document.createElement('ul');
+                ul.id = `list-${manufacturer.toLowerCase().replace(/\s+/g, '-')}`;
+                ul.classList.add('aircraft-list'); // Add class
+
+                const aircraftInGroup = aircraftData
+                    .filter(ac => ac.manufacturer === manufacturer)
+                    .sort((a, b) => a.model.localeCompare(b.model)); // Sort models alphabetically
+
+                aircraftInGroup.forEach(ac => {
+                    const li = document.createElement('li');
+                    li.dataset.slug = ac.slug; // Use slug as identifier
+                    li.dataset.manufacturer = ac.manufacturer; // Add manufacturer for easier access
+
+                    let textContent = ac.model;
+                    if (ac.code) {
+                        textContent += ` <span class="code">(${ac.code})</span>`;
+                    }
+                    li.innerHTML = textContent; // Use innerHTML to render the span
+
+                    li.addEventListener('click', () => showDetails(ac.slug, li));
+                    ul.appendChild(li);
+                });
+
+                groupDiv.appendChild(ul);
+                listContainer.appendChild(groupDiv);
+            });
+        }
+
+        // Filter the sidebar list based on search input
+        function filterList() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const allListItems = listContainer.querySelectorAll('li');
+            const allGroupDivs = listContainer.querySelectorAll('.manufacturer-group');
+
+            allListItems.forEach(item => {
+                const itemText = item.textContent.toLowerCase();
+                const itemSlug = item.dataset.slug;
+                const itemManufacturer = item.dataset.manufacturer;
+
+                // Match against model, code, or manufacturer
+                if (itemText.includes(searchTerm) || itemManufacturer.toLowerCase().includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+             // Hide manufacturer groups if all their items are hidden
+            allGroupDivs.forEach(groupDiv => {
+                const manufacturer = groupDiv.dataset.manufacturer;
+                const visibleItemsInGroup = groupDiv.querySelectorAll(`li[data-manufacturer="${manufacturer}"]:not(.hidden)`);
+                groupDiv.classList.toggle('hidden', visibleItemsInGroup.length === 0);
+            });
+        }
+
+        // Show details for the selected aircraft
+        function showDetails(slug, listItemElement) {
+            const aircraft = aircraftData.find(ac => ac.slug === slug);
+            if (!aircraft) return; // Should not happen if slug comes from list item
+
+            // Update active state in the list
+            if (currentActiveListItem) {
+                currentActiveListItem.classList.remove('active');
+            }
+            listItemElement.classList.add('active');
+            currentActiveListItem = listItemElement;
+
+
+            // Populate details
+            detailsTitle.textContent = `${aircraft.manufacturer} ${aircraft.model}`;
+
+            // Overview
+            detailManufacturer.textContent = aircraft.manufacturer || 'N/A';
+            detailModel.textContent = aircraft.model || 'N/A';
+            detailCode.textContent = aircraft.code || 'N/A';
+
+            // Passenger Experience - Cabins
+            cabinsContainer.innerHTML = ''; // Clear previous cabins
+            if (aircraft.passengerExperience && aircraft.passengerExperience.cabins && aircraft.passengerExperience.cabins.length > 0) {
+                aircraft.passengerExperience.cabins.forEach(cabin => {
+                    const card = document.createElement('div');
+                    card.classList.add('cabin-card');
+                    card.innerHTML = `
+                        <h4>${cabin.name || 'Cabin'}</h4>
+                        <p><strong>Seats:</strong> ${cabin.seats !== undefined ? cabin.seats : 'N/A'}</p>
+                    `;
+                    cabinsContainer.appendChild(card);
+                });
+                 document.getElementById('experience-section').classList.remove('hidden'); // Ensure section is visible
+            } else {
+                 // Optionally hide the whole cabin section or show a message
+                cabinsContainer.innerHTML = '<p>Cabin details not available.</p>';
+                // Or hide the whole section: document.getElementById('experience-section').classList.add('hidden');
+
+            }
+
+            // Passenger Experience - Amenities
+             detailWifi.textContent = aircraft.passengerExperience?.wifi || 'N/A';
+             detailPower.textContent = aircraft.passengerExperience?.power || 'N/A';
+             detailEntertainment.textContent = aircraft.passengerExperience?.entertainment || 'N/A';
+
+            // Specs
+             detailSpeed.textContent = aircraft.specs?.speed || 'N/A';
+             detailRange.textContent = aircraft.specs?.range || 'N/A';
+             detailEngines.textContent = aircraft.specs?.engines || 'N/A';
+             document.getElementById('specs-section').classList.toggle('hidden', !aircraft.specs || Object.keys(aircraft.specs).length === 0);
+
+
+            // Links
+            const deltaLinkUrl = aircraft.deltaLink || '#'; // Fallback link
+            linkDelta.href = deltaLinkUrl;
+            linkDelta.classList.toggle('hidden', !aircraft.deltaLink); // Hide if no link
+
+             // Construct Seat Map URL (Guessing Pattern!)
+             // Example: https://www.delta.com/us/en/aircraft/boeing/737-900er/seat-map
+             const seatMapBase = 'https://www.delta.com/us/en/aircraft/';
+             let seatMapUrl = '#';
+             if (aircraft.manufacturer && aircraft.slug) {
+                 // Handle Boeing 717 special case in slug if needed, or ensure slug is correct
+                 const manufacturerSlug = aircraft.manufacturer.toLowerCase();
+                 seatMapUrl = `${seatMapBase}${manufacturerSlug}/${aircraft.slug}/seat-map`;
+             }
+             linkSeatmap.href = seatMapUrl;
+             linkSeatmap.classList.toggle('hidden', seatMapUrl === '#');
+
+
+            // Show details, hide placeholder
+            detailsPlaceholder.style.display = 'none';
+            detailsContent.style.display = 'block';
+        }
+
+
+        // --- Initialization ---
+        generateSidebarList();
+        searchInput.addEventListener('input', filterList);
+
+    </script>
+
+</body>
+</html>
